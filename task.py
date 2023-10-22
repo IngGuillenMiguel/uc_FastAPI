@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Body, status, HTTPException
-from models import Task
+from models import Task, StatusType
 
 task_router = APIRouter(
     prefix="/task",
@@ -23,7 +23,18 @@ def add(task: Task):
 
 
 @task_router.put('/', status_code=status.HTTP_200_OK)
-def update(index: int, task: Task):
+def update(index: int, task: Task = Body(
+    examples=[
+        {
+            "id": 123,
+            "name": "Primer tarea",
+            "description": "Realizar la tarea asignada",
+            "status": StatusType.PENDING,
+            "tags": ["tag 1", "tag 2"],
+            "category":{"id": 123, "name": "category 1"}
+        }
+    ]
+)):
     # task_list[index] = {
     #    "task": task,
     #    "status": status

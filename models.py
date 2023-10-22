@@ -31,7 +31,7 @@ class Category(IDFieldModel):
 
 
 class User(IDFieldModel):
-    name: str = Field(min_length=10, max_length=255)
+    name: str = Field(min_length=5, max_length=255)
     surname: str
     email: EmailStr
     website: HttpUrl
@@ -45,6 +45,30 @@ class Task(IDFieldModel):
     user: User
     # tags: List[str] = []
     tags: set[str] = set()  # no permiti repetir elementos en una lista
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "id": 123,
+                    "name": "Primer tarea",
+                    "description": "Realizar la tarea asignada",
+                    "status": StatusType.PENDING,
+                    "tags": ["tag 1", "tag 2"],
+                    "category":{
+                        "id": 123,
+                        "name": "category 1"
+                    },
+                    "user": {
+                        "id": 12,
+                        "name": "Luffy",
+                        "email": "luffy.monekyd@gmails.com",
+                        "surname": "D",
+                        "website": "https://reydelospiratas.com"
+                    }
+                }
+            ]
+        }
+    }
 
     # @field_validator('name')
     @validator('name')
