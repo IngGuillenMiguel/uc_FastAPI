@@ -1,9 +1,13 @@
 from fastapi import FastAPI, APIRouter, Query, Path
 from task import task_router
 from myupload import upload_router
+from database.models import Task
+from database.database import Base, engine
 
 app = FastAPI()
 router = APIRouter()
+
+Base.metadata.create_all(bind=engine)
 
 
 @router.get('/hello')
