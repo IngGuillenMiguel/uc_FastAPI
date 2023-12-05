@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Optional, List
 from pydantic import BaseModel, validator, Field, EmailStr, HttpUrl
+from fastapi import Form
 # from pydantic import field_validator
 
 
@@ -30,6 +31,16 @@ class Task(BaseModel):
     category_id: int
     user_id: int
     tags: set[str] = set()  # no permiti repetir elementos en una lista
+
+    @classmethod
+    def as_form(cls,
+                name: str = Form(),
+                description: str = Form(),
+                status: str = Form(),
+                category_id: str = Form(),
+                user_id: str = Form(),
+                ):
+        return cls(name=name, description=description, status=status, category_id=category_id, user_id=user_id)
 
     class Config:
         # orm_mode = True
@@ -70,3 +81,13 @@ class TaskRead(Task):
 class TaskWrite(Task):
     id: Optional[int] = Field(default=None)
     user_id: Optional[int] = Field(default=None)
+
+    @classmethod
+    def as_form(cls,
+                name: str = Form(),
+                description: str = Form(),
+                status: str = Form(),
+                category_id: str = Form(),
+                user_id: str = Form(),
+                ):
+        return cls(name=name, description=description, status=status, category_id=category_id, user_id=user_id)

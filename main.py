@@ -1,8 +1,16 @@
-from fastapi import FastAPI, APIRouter, Query, Path
+from fastapi import FastAPI, APIRouter, Query, Path, Depends
 from task import task_router
 from myupload import upload_router
-from database.models import Task
-from database.database import Base, engine
+
+from sqlalchemy.orm import Session
+from database.models import Task, Category
+from database.database import Base, engine, get_database_session
+from database import crud
+
+from fastapi import Request
+from fastapi.templating import Jinja2Templates
+
+templates = Jinja2Templates(directory="templates/")
 
 app = FastAPI()
 router = APIRouter()
@@ -30,6 +38,12 @@ def phone(phone: str = Query(regex=r"^(\(?\+[\d]{1,3}\)?)\s?([\d]{1,5})\s?([\d][
 # def phone(phone: str = Path(pattern=r"^(\(?\+[\d]{1,3}\)?)\s?([\d]{1,5})\s?([\d][\s\.-]?){6,7}$")
 def phone(phone: str = Path(pattern=r"^(\(?\+[\d]{1,3}\)?)\s?([\d]{1,5})\s?([\d][\s\.-]?){6,7}$", example="+52 646 123 45 67")):
     return {"phone": phone}
+
+
+@app.get('/page')  # Templates
+def index(request: Request, db: Session = Depends(get_database_session)):
+    categories = db.query(Category).all()
+    return templates.TemplateResponse('task/index.html', {"request": request, "tasks": crud.getAll(db), "categories": categories})
 
 
 app.include_router(router)

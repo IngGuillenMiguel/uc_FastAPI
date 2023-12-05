@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAPI</title>
+</head>
+
+<body>
+    <h1>Hello World!</h1>
+    <p>-> Inicia Bloque macro</p>
+    {% macro suma(v1,v2) %}
+    <p>{{v1}}+{{v2}} = <strong>{{v1+v2}}</strong></p>
+    {% endmacro %}
+    {{suma(5,4)}}
+    <p>-> Termina Bloque macro</p>
+    <p></p>
+    {% if true and false%}
+    Is True
+    {% else %}
+    Is not true
+    {% endif %}
+    <p></p>
+    {% set var1 = 'FastAPI'%}
+    {% set var2 = var1 %}
+    {{ var1 }}
+    <p>-> Inicia Bloque raw</p>
+    {{ var2 }}
+    <p></p>
+    {% raw %}
+    var1
+    {{ var1 }}
+    <title>FastAPI</title>
+    {% endraw %}
+    <p>-> Termina Bloque raw</p>
+    <p></p>
+    <ul>
+        {% for i in [1,2,3,4,5] %}
+        <li>{{ i }} {{ loop }}</li>
+        {% endfor %}
+    </ul>
+    <h1>Filtros</h1>
+    <p> {{ task | default('No default') }}</p>
+    <p></p>
+    {{ "<title>FastAPI</title>" | escape }}
+    <p></p>
+    {{ 3.1415|int}}
+    <p></p>
+    {{ [1,2,3,4,5,6,7,20]|max}}
+    <p></p>
+    {{ [1,2,3,4,5,6,7,20]|min}}
+    <p></p>
+    {{ 3.1415|round}}
+    <p></p>
+    {{ "Hello FastAPI"|replace("Hello","Hi")}}
+    <p></p>
+    {{ ['Hello','FastAPI']|join(" ")}}
+    <p></p>
+    {{ "Hello FastAPI"|lower}}
+    <p></p>
+    {{ "Hello FastAPI"|upper}}
+    <p></p>
+    {{ "Hello FastAPI"|reverse}}
+    <p></p>
+    {% for i in [1,2,3,4,5]|reverse %}
+    {{ i }}
+    {% endfor %}
+    <p></p>
+    {{ "Hello FastAPI"|length}}
+    <p></p>
+    {{ [1,2,25,3,4,-1,5,150,6,7,20]|sort}}
+    <p></p>
+    <p></p>
+    {% for i in [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]|slice(4) %}
+    {{ i }}
+    {% endfor %}
+    <p></p>
+</body>
+
+</html>

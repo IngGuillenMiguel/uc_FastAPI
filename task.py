@@ -83,6 +83,11 @@ def get(id: int = Path(ge=1), db: Session = Depends(get_database_session)):
     return crud.getByID(id, db)
 
 
+@task_router.post('/form-create', status_code=status.HTTP_201_CREATED)
+def addForm(task: TaskWrite = Depends(TaskWrite.as_form), db: Session = Depends(get_database_session)):
+    return {"task": crud.create(task, db=db)}
+
+
 @task_router.post('/', status_code=status.HTTP_201_CREATED)
 def add(task: Task = Body(examples=taskWithORM), db: Session = Depends(get_database_session)):
     return {"task": crud.create(task, db=db)}
