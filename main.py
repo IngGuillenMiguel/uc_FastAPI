@@ -5,10 +5,13 @@ from myupload import upload_router
 from task import task_router
 from fastapi import FastAPI, Depends, APIRouter, Query, Path, Request, Header, HTTPException, status
 from fastapi.templating import Jinja2Templates
+from fastapi.security import APIKeyHeader
 from typing import Optional
 from sqlalchemy.orm import Session
 from typing_extensions import Annotated
 import time
+from user import user_router
+from authentication.authentication import verify_access_token
 
 templates = Jinja2Templates(directory="templates/")
 
@@ -32,9 +35,40 @@ async def add_process_time_to_header(request: Request, call_next):
 
 # ends.middlewares
 
+# Start.Token Auth
+''' # TOKEN SIN DB
+API_KEY_TOKEN_PASS = "SECRET_PASSWORD"
+api_key_token = APIKeyHeader(name='Token')
+@app.get("/protected-route")
+def protected_route(token: str = Depends(api_key_token)):
+    if token != API_KEY_TOKEN_PASS:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+    return {'hola': 'fastapi'}
+'''
+'''
+# TOKEN CON DB
+api_key_token = APIKeyHeader(name='Token')
+@app.get("/protected-route")
+def protected_route(token: str = Depends(api_key_token), db: Session = Depends(get_database_session)):
+    user = db.query(User).join(AccessToken).filter(
+        AccessToken.access_token == token).first()
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    return {'hola': 'fastapi'}
+'''
+# Ends.Token Auth
+
+'''
+@router.get('/hello', dependencies=[Depends(verify_access_token)])
+def hello_world():
+    return {"hello": "world"}
+'''
+
 
 @router.get('/hello')
-def hello_world():
+def hello_world(user=Depends(verify_access_token), db: Session = Depends(get_database_session)):
+    print('*******')
+    print(user.name)
     return {"hello": "world"}
 
 
@@ -80,7 +114,7 @@ def validate_token(token: str = Header()):
 
 
 @app.get('/route-protected', dependencies=[Depends(validate_token)])
-def protected_route(index: int):
+def route_protected(index: int):
     return {'hello': 'FastAPI'}
 
 
@@ -89,12 +123,12 @@ CurrentTaskId = Annotated[int, Depends(validate_token)]
 
 
 @app.get('/route-protected2')
-def protected_route2(CurrentTaskId, index: int):
+def route_protected2(CurrentTaskId, index: int):
     return {'hello': 'FastAPI'}
 
 
 @app.get('/route-protected3')
-def protected_route3(CurrentTaskId, index: int, user_id: int):
+def route_protected3(CurrentTaskId, index: int, user_id: int):
     return {'hello': 'FastAPI'}
 
 # Ends.DEPENDS
@@ -102,4 +136,5 @@ def protected_route3(CurrentTaskId, index: int, user_id: int):
 
 app.include_router(router)
 app.include_router(task_router)
+app.include_router(user_router)
 app.include_router(upload_router)

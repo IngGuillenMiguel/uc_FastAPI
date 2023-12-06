@@ -45,6 +45,7 @@ class User(Base):
     lastname = Column(String(250))
     email = Column(String(250))
     website = Column(String(250))
+    hashed_password = Column(String(255))
     tasks = relationship('Task', back_populates='user', lazy='joined')
 
 
@@ -53,3 +54,11 @@ class Tag(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(250))
     tasks = relationship('Task', secondary=task_tag)
+
+
+class AccessToken(Base):
+    __tablename__ = "uc_ucaccess_token"
+    user_id = Column(Integer, ForeignKey('uc_ucusers.id'), primary_key=True)
+    access_token = Column(String(255))
+    expiration_date = Column(DateTime(timezone=True))
+    user = relationship('User', lazy='joined')
