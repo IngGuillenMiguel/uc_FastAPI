@@ -8,6 +8,7 @@ from fastapi.templating import Jinja2Templates
 from typing import Optional
 from sqlalchemy.orm import Session
 from typing_extensions import Annotated
+import time
 
 templates = Jinja2Templates(directory="templates/")
 
@@ -15,6 +16,21 @@ app = FastAPI()
 router = APIRouter()
 
 Base.metadata.create_all(bind=engine)
+
+# start.middlewares
+
+
+@app.middleware("http")
+async def add_process_time_to_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    print("process_time")
+    print(process_time)
+    return response
+
+# ends.middlewares
 
 
 @router.get('/hello')
