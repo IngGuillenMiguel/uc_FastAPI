@@ -1,14 +1,13 @@
-from fastapi import FastAPI, APIRouter, Query, Path, Depends
-from task import task_router
-from myupload import upload_router
-
-from sqlalchemy.orm import Session
 from database.models import Task, Category
-from database.database import Base, engine, get_database_session
 from database import crud
-
-from fastapi import Request
+from database.database import Base, engine, get_database_session
+from myupload import upload_router
+from task import task_router
+from fastapi import FastAPI, Depends, APIRouter, Query, Path, Request, Header, HTTPException, status
 from fastapi.templating import Jinja2Templates
+from typing import Optional
+from sqlalchemy.orm import Session
+from typing_extensions import Annotated
 
 templates = Jinja2Templates(directory="templates/")
 
@@ -44,6 +43,45 @@ def phone(phone: str = Path(pattern=r"^(\(?\+[\d]{1,3}\)?)\s?([\d]{1,5})\s?([\d]
 def index(request: Request, db: Session = Depends(get_database_session)):
     categories = db.query(Category).all()
     return templates.TemplateResponse('task/index.html', {"request": request, "tasks": crud.getAll(db), "categories": categories})
+
+# Start.DEPENDS
+
+
+def pagination(page: Optional[int] = 1, limit: Optional[int] = 10):
+    return {'page': page, 'limit': limit}
+
+
+@app.get('/p-task')
+def index(pag: dict = Depends(pagination)):
+    return pag
+
+# PATH
+
+
+def validate_token(token: str = Header()):
+    if token != "TOKEN":
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+
+@app.get('/route-protected', dependencies=[Depends(validate_token)])
+def protected_route(index: int):
+    return {'hello': 'FastAPI'}
+
+
+# VAR
+CurrentTaskId = Annotated[int, Depends(validate_token)]
+
+
+@app.get('/route-protected2')
+def protected_route2(CurrentTaskId, index: int):
+    return {'hello': 'FastAPI'}
+
+
+@app.get('/route-protected3')
+def protected_route3(CurrentTaskId, index: int, user_id: int):
+    return {'hello': 'FastAPI'}
+
+# Ends.DEPENDS
 
 
 app.include_router(router)
